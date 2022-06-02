@@ -57,6 +57,7 @@ public class FilmController extends FilmorateController<Film> {
     }
 
     private int filmIdGenerator(){
+        log.info("Film id generated"+filmId);
         return filmId++;
     }
 }

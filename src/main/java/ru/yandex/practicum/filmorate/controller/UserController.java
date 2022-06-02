@@ -56,6 +56,7 @@ public class UserController extends FilmorateController<User> {
     }
 
     private int userIdGenerator(){
+        log.info("User id generated:"+userId);
         return userId++;
     }
 }
