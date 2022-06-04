@@ -1,63 +1,58 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.controller.validation.DataValidator;
+import ru.yandex.practicum.filmorate.controller.validation.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
-public class FilmController extends FilmorateController<Film> {
+public class FilmController {
 
-    @Getter
-    private final HashMap<Integer,Film> filmsMap = new HashMap<>();
     private static int filmId = 1;
-    private final static Logger log = LoggerFactory.getLogger(FilmorateController.class);
+    @Getter
+    private final HashMap<Integer, Film> filmsMap = new HashMap<>();
+    private final DataValidator objectValidator = new DataValidator();
 
-    @Override
+    @GetMapping
     public List<Film> getAll() {
         log.info("Get film list");
         return new ArrayList<>(filmsMap.values());
     }
 
-    @Override
+    @PostMapping
     public Film create(@Valid @RequestBody Film film) {
+        objectValidator.validateFilm(film);
         film.setId(filmId);
-        filmsMap.put(filmIdGenerator(), dataValidator(film));
+        filmsMap.put(filmIdGenerator(), film);
         log.info("Film added");
         return film;
     }
 
-    @Override
+    @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        if(filmsMap.get(film.getId())!=null){
-            filmsMap.put(film.getId(), dataValidator(film));
+        objectValidator.validateFilm(film);
+        if (filmsMap.containsKey(film.getId())) {
+            filmsMap.put(film.getId(), film);
             log.info("Film updated");
-        }else {
+        } else {
             log.error("Update error.Film with this id not found");
-            throw new ValidationException("Update error.Film with this id not found");
+            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Update error.Film with this id not found");
         }
         return film;
     }
 
-    @Override
-    public Film dataValidator(Film film) {
-        if(film.getReleaseDate().isBefore(LocalDate.of(1895,12,28))){
-            log.error("Date release is Before than 12.28.1895");
-            throw new ValidationException("Date release is Before than 12.28.1895");
-        }
-        return film;
-    }
-
-    private int filmIdGenerator(){
-        log.info("Film id generated"+filmId);
+    private int filmIdGenerator() {
+        log.info("Film id generated" + filmId);
         return filmId++;
     }
 }
