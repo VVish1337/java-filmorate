@@ -8,11 +8,13 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.Set;
+
 @AllArgsConstructor
 @Getter
 public class User {
     @Setter
-    private int id;
+    private long id;
     @Email(message = "{Email is not valid}")
     @NotEmpty(message = "{Email is empty}")
     private String email;
@@ -22,4 +24,5 @@ public class User {
     private String name;
     @Past(message = "{Birthday can't be in future}")
     private LocalDate birthday;
+    private Set<Long> friends;
 }

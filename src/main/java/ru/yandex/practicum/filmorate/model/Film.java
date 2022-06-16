@@ -8,12 +8,13 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
 
 @AllArgsConstructor
 @Getter
 public class Film {
     @Setter
-    private int id;
+    private long id;
     @NotEmpty(message = "{Name is empty}")
     private String name;
     @Size(max = 200, message = "{Description size too long.Max size 200 symbols.}")
@@ -21,4 +22,5 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "{Duration must be positive}")
     private int duration;
+    private Set<Long> likes;
 }
