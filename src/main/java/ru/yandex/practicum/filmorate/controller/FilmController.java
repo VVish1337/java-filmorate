@@ -17,7 +17,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @Autowired
-    FilmController(FilmService filmService){
+    FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
@@ -26,8 +26,6 @@ public class FilmController {
         return filmService.getAll();
     }
 
-
-
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         return filmService.create(film);
@@ -35,21 +33,27 @@ public class FilmController {
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-       return filmService.update(film);
+        return filmService.update(film);
     }
 
     @GetMapping("{filmId}")
-    public Film getById(@PathVariable long filmId){
+    public Film getById(@PathVariable long filmId) {
         return filmService.getById(filmId);
     }
 
     @PutMapping("{filmId}/like/{userId}")
-    public List<Film> addLikes(@PathVariable long filmId,@PathVariable long userId){
-        return filmService.addLikes(filmId,userId);
+    public List<Film> addLikes(@PathVariable long filmId, @PathVariable long userId) {
+        return filmService.addLikes(filmId, userId);
     }
 
     @DeleteMapping("{filmId}/like/{userId}")
-    public List<Film> deleteLikes(@PathVariable long filmId,@PathVariable long userId){
-        return filmService.deleteLikes(filmId,userId);
+    public List<Film> deleteLikes(@PathVariable long filmId, @PathVariable long userId) {
+        return filmService.deleteLikes(filmId, userId);
+    }
+
+    @GetMapping("popular")
+    public List<Film> getPopularFilmList(
+            @RequestParam(value = "count", defaultValue = "10", required = false) long count) {
+        return filmService.getPopularFilmList(count);
     }
 }

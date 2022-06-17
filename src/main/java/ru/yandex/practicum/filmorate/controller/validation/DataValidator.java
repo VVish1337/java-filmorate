@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller.validation;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import ru.yandex.practicum.filmorate.controller.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;

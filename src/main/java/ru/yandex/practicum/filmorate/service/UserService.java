@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public class UserService {
             userStorage.getUsersMap().get(friendId).getFriends().add(userId);
             return userStorage.getAll();
         } else {
-            throw new NotFoundException("sss");
+            throw new NotFoundException("User id:" + userId + " or friend id:" + friendId + " not found");
         }
     }
 
@@ -55,7 +56,7 @@ public class UserService {
             userStorage.getUsersMap().get(friendId).getFriends().remove(userId);
             return userStorage.getAll();
         } else {
-            throw new NotFoundException("");
+            throw new NotFoundException("User id:" + userId + " or friend id:" + friendId + " not found");
         }
     }
 
@@ -67,25 +68,26 @@ public class UserService {
             }
             return users;
         } else {
-            throw new NotFoundException("User with this id not found"+userId);
+            throw new NotFoundException("User with this id not found" + userId);
         }
     }
 
     public List<User> getUserCommonFriends(long userId, long otherId) {
         if (userStorage.getUsersMap().containsKey(userId) && userStorage.getUsersMap().containsKey(otherId)
-                && userStorage.getUsersMap().get(userId).getFriends().size() > 0
-                && userStorage.getUsersMap().get(otherId).getFriends().size() > 0
         ) {
-            Set<Long> commonIds = null;
-            commonIds.addAll(userStorage.getUsersMap().get(userId).getFriends());
-            commonIds.addAll(userStorage.getUsersMap().get(otherId).getFriends());
+            Set<Long> commonIds = new HashSet<>();
+            for (Long id : userStorage.getUsersMap().get(userId).getFriends()) {
+                if (userStorage.getUsersMap().get(otherId).getFriends().contains(id)) {
+                    commonIds.add(id);
+                }
+            }
             List<User> commonUsersMap = new ArrayList<>();
             for (Long id : commonIds) {
                 commonUsersMap.add(userStorage.getUsersMap().get(id));
             }
             return commonUsersMap;
         } else {
-            throw new NotFoundException("");
+            throw new NotFoundException("User id:" + userId + " or other id:" + otherId + " not found");
         }
     }
 }

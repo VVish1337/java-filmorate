@@ -2,10 +2,9 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.controller.validation.DataValidator;
-import ru.yandex.practicum.filmorate.controller.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.info("Film updated");
         } else {
             log.error("Update error.Film with this id not found");
-            throw new ValidationException( "Update error.Film with this id not found");
+            throw new NotFoundException("Update error.Film with this id not found");
         }
         return film;
     }

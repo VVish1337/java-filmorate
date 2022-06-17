@@ -42,12 +42,12 @@ public class UserController {
         return userService.getById(userId);
     }
 
-    @PutMapping("{userId}/friends/common/{friendId}")
+    @PutMapping("{userId}/friends/{friendId}")
     public List<User> addFriend(@PathVariable long userId, @PathVariable long friendId) {
         return userService.addFriend(userId, friendId);
     }
 
-    @DeleteMapping("{userId}/friends/common/{friendId}")
+    @DeleteMapping("{userId}/friends/{friendId}")
     public List<User> deleteFriend(@PathVariable long userId, @PathVariable long friendId) {
         return userService.deleteFriend(userId, friendId);
     }
