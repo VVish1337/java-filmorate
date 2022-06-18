@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -41,9 +42,9 @@ public class UserService {
     }
 
     public List<User> addFriend(long userId, long friendId) {
-        if (userStorage.getUsersMap().containsKey(userId) && userStorage.getUsersMap().containsKey(friendId)) {
-            userStorage.getUsersMap().get(userId).getFriends().add(friendId);
-            userStorage.getUsersMap().get(friendId).getFriends().add(userId);
+        if (getById(userId) != null && getById(friendId) != null) {
+            getById(userId).getFriends().add(friendId);
+            getById(friendId).getFriends().add(userId);
             return userStorage.getAll();
         } else {
             throw new NotFoundException("User id:" + userId + " or friend id:" + friendId + " not found");
@@ -51,9 +52,9 @@ public class UserService {
     }
 
     public List<User> deleteFriend(long userId, long friendId) {
-        if (userStorage.getUsersMap().containsKey(userId) && userStorage.getUsersMap().containsKey(friendId)) {
-            userStorage.getUsersMap().get(userId).getFriends().remove(friendId);
-            userStorage.getUsersMap().get(friendId).getFriends().remove(userId);
+        if (getById(userId) != null && getById(friendId) != null) {
+            getById(userId).getFriends().remove(friendId);
+            getById(friendId).getFriends().remove(userId);
             return userStorage.getAll();
         } else {
             throw new NotFoundException("User id:" + userId + " or friend id:" + friendId + " not found");
@@ -61,31 +62,24 @@ public class UserService {
     }
 
     public List<User> getUserFriends(long userId) {
-        if (userStorage.getUsersMap().containsKey(userId)) {
-            List<User> users = new ArrayList<>();
-            for (Long id : userStorage.getUsersMap().get(userId).getFriends()) {
-                users.add(userStorage.getUsersMap().get(id));
-            }
-            return users;
+        if (getById(userId) != null) {
+            return getById(userId).getFriends()
+                    .stream()
+                    .map(this::getById)
+                    .collect(Collectors.toCollection(ArrayList<User>::new));
         } else {
             throw new NotFoundException("User with this id not found" + userId);
         }
     }
 
     public List<User> getUserCommonFriends(long userId, long otherId) {
-        if (userStorage.getUsersMap().containsKey(userId) && userStorage.getUsersMap().containsKey(otherId)
-        ) {
-            Set<Long> commonIds = new HashSet<>();
-            for (Long id : userStorage.getUsersMap().get(userId).getFriends()) {
-                if (userStorage.getUsersMap().get(otherId).getFriends().contains(id)) {
-                    commonIds.add(id);
-                }
-            }
-            List<User> commonUsersMap = new ArrayList<>();
-            for (Long id : commonIds) {
-                commonUsersMap.add(userStorage.getUsersMap().get(id));
-            }
-            return commonUsersMap;
+        if (getById(userId) != null && getById(otherId) != null) {
+            Set<Long> commonIds = new HashSet<>(getById(userId).getFriends());
+            return commonIds.stream()
+                    .distinct()
+                    .filter(getById(otherId).getFriends()::contains)
+                    .map(this::getById)
+                    .collect(Collectors.toCollection(ArrayList<User>::new));
         } else {
             throw new NotFoundException("User id:" + userId + " or other id:" + otherId + " not found");
         }
