@@ -21,7 +21,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final DataValidator objectValidator = new DataValidator();
 
     @Override
-    public List<Film> getAll() {
+    public List<Film> getFilmList() {
         log.info("Get film list");
         return new ArrayList<>(filmsMap.values());
     }
@@ -46,6 +46,15 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Update error.Film with this id not found");
         }
         return film;
+    }
+
+    @Override
+    public Film getFilmById(long filmId) {
+        if (filmsMap.containsKey(filmId)) {
+            return filmsMap.get(filmId);
+        } else {
+            throw new NotFoundException("Film id:" + filmId + " not found");
+        }
     }
 
     private long filmIdGenerator() {

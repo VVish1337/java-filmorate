@@ -18,10 +18,9 @@ public class InMemoryUserStorage implements UserStorage {
     @Getter
     private final HashMap<Long, User> usersMap = new HashMap<>();
     private final DataValidator objectValidator = new DataValidator();
-    private final List<User> friends = new ArrayList<>();
 
     @Override
-    public List<User> getAll() {
+    public List<User> getUserList() {
         log.info("Get user list");
         return new ArrayList<>(usersMap.values());
     }
@@ -48,6 +47,15 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("Update error.User id incorrect.");
         }
         return user;
+    }
+
+    @Override
+    public User getUserById(long userId) {
+        if (usersMap.containsKey(userId)) {
+            return usersMap.get(userId);
+        } else {
+            throw new NotFoundException("User with this id not found" + userId);
+        }
     }
 
     private long userIdGenerator() {

@@ -22,8 +22,8 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getAll() {
-        return filmService.getAll();
+    public List<Film> getFilmList() {
+        return filmService.getFilmList();
     }
 
     @PostMapping
@@ -37,8 +37,8 @@ public class FilmController {
     }
 
     @GetMapping("{filmId}")
-    public Film getById(@PathVariable long filmId) {
-        return filmService.getById(filmId);
+    public Film getFilmById(@PathVariable long filmId) {
+        return filmService.getFilmById(filmId);
     }
 
     @PutMapping("{filmId}/like/{userId}")
