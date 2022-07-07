@@ -1,16 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.controller.validation.DataValidator;
-import ru.yandex.practicum.filmorate.controller.validation.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -18,41 +14,46 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
 
-    private static int filmId = 1;
-    @Getter
-    private final HashMap<Integer, Film> filmsMap = new HashMap<>();
-    private final DataValidator objectValidator = new DataValidator();
+    private final FilmService filmService;
+
+    @Autowired
+    FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
-    public List<Film> getAll() {
-        log.info("Get film list");
-        return new ArrayList<>(filmsMap.values());
+    public List<Film> getFilmList() {
+        return filmService.getFilmList();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        objectValidator.validateFilm(film);
-        film.setId(filmId);
-        filmsMap.put(filmIdGenerator(), film);
-        log.info("Film added");
-        return film;
+        return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        objectValidator.validateFilm(film);
-        if (filmsMap.containsKey(film.getId())) {
-            filmsMap.put(film.getId(), film);
-            log.info("Film updated");
-        } else {
-            log.error("Update error.Film with this id not found");
-            throw new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR, "Update error.Film with this id not found");
-        }
-        return film;
+        return filmService.update(film);
     }
 
-    private int filmIdGenerator() {
-        log.info("Film id generated" + filmId);
-        return filmId++;
+    @GetMapping("{filmId}")
+    public Film getFilmById(@PathVariable long filmId) {
+        return filmService.getFilmById(filmId);
+    }
+
+    @PutMapping("{filmId}/like/{userId}")
+    public List<Film> addLikes(@PathVariable long filmId, @PathVariable long userId) {
+        return filmService.addLikes(filmId, userId);
+    }
+
+    @DeleteMapping("{filmId}/like/{userId}")
+    public List<Film> deleteLikes(@PathVariable long filmId, @PathVariable long userId) {
+        return filmService.deleteLikes(filmId, userId);
+    }
+
+    @GetMapping("popular")
+    public List<Film> getPopularFilmList(
+            @RequestParam(value = "count", defaultValue = "10", required = false) long count) {
+        return filmService.getPopularFilmList(count);
     }
 }
