@@ -39,6 +39,7 @@ public class FilmDbStorage implements FilmStorage {
         return null;
     }
 
+    //ss
     @Override
     public Film create(Film film) {
         String sql = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID) " +
@@ -68,7 +69,7 @@ public class FilmDbStorage implements FilmStorage {
         final String sqlQuery = "SELECT * FROM USERS WHERE USER_ID=?";
         final List<Film> films = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm,id);
         if(films.size() !=0){
-            //TODO not found
+            //TODO not found ss
         }
         return films.get(0);
     }
