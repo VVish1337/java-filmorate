@@ -1,16 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserDbStorage implements UserStorage {
@@ -21,18 +22,19 @@ public class UserDbStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    static User makeUser(ResultSet resultSet,int rowNum) throws SQLException {
+    static User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
         return new User(resultSet.getLong("USER_ID"),
                 resultSet.getString("EMAIl"),
                 resultSet.getString("LOGIN"),
                 resultSet.getString("USER_NAME"),
                 resultSet.getDate("BIRTHDAY").toLocalDate()
-                );
+        );
     }
 
     @Override
     public List<User> getUserList() {
-        return null;
+        String sqlQuery = ("SELECT * FROM USERS");
+        return jdbcTemplate.query(sqlQuery,UserDbStorage::makeUser);
     }
 
     @Override
@@ -48,7 +50,7 @@ public class UserDbStorage implements UserStorage {
             final LocalDate birthday = user.getBirthday();
             if (birthday == null) {
                 stmt.setNull(4, Types.DATE);
-            }else {
+            } else {
                 stmt.setDate(4, Date.valueOf(birthday));
             }
             return stmt;
@@ -59,25 +61,46 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        String sqlQuery = "UPDATE USERS SET " +
-                "EMAIl = ?, LOGIN = ?, USER_NAME = ?,BIRTHDAY = ?" +
-                "where id = ?";
-        jdbcTemplate.update(sqlQuery
-                , user.getEmail()
-                , user.getLogin()
-                , user.getName()
-                , user.getBirthday());
-        return user;
+        String sqlQuery = "MERGE INTO USERS (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sqlQuery,
+                user.getId(),
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                user.getBirthday()
+        );
+        return getUserById(user.getId());
     }
 
     @Override
     public User getUserById(long userId) {
-        final String sqlQuery = "SELECT * FROM USERS WHERE USER_ID=?";
-        final List<User> users = jdbcTemplate.query(sqlQuery,UserDbStorage::makeUser,userId);
-        if(users.size() !=0){
-            //TODO not found
-        }
-        return users.get(0);
+        String sql = "SELECT * FROM USERS WHERE USER_ID = ?";
+        return jdbcTemplate.query(sql, UserDbStorage::makeUser, userId)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException(""));
     }
+
+    @Override
+    public void addFriend(long userId, long friendId) {
+        final String sqlQuery = "INSERT INTO FRIEND_LIST (USER_ID,FRIEND_ID) VALUES(?,?)";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public void deleteFriend(long userId, long friendId) {
+        final String sqlQuery = "DELETE FROM FRIEND_LIST WHERE USER_ID = ? AND FRIEND_ID =?";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public List<User> getUserFriends(long userId){
+        final String sqlQuery = "SELECT FRIEND_ID FROM FRIEND_LIST WHERE USER_ID = ?";
+        List<Long> friends = jdbcTemplate.queryForList(sqlQuery,Long.class,userId);
+        return friends.stream()
+                    .map(this::getUserById)
+                    .collect(Collectors.toList());
+    }
+
 
 }

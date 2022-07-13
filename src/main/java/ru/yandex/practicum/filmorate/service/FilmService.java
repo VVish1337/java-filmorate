@@ -1,18 +1,18 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-//    private final InMemoryFilmStorage filmStorage;
+    private final FilmDbStorage filmStorage;
+
+    public FilmService(FilmDbStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
 //    private final InMemoryUserStorage userStorage;
 //
 //    @Autowired
@@ -20,23 +20,30 @@ public class FilmService {
 //        this.filmStorage = filmStorage;
 //        this.userStorage = userStorage;
 //    }
-//
-//    public List<Film> getFilmList() {
-//        return filmStorage.getFilmList();
-//    }
-//
-//    public Film create(Film film) {
-//        return filmStorage.create(film);
-//    }
-//
-//    public Film update(Film film) {
-//        return filmStorage.update(film);
-//    }
-//
-//    public Film getFilmById(long filmId) {
-//        return filmStorage.getFilmById(filmId);
-//    }
-//
+
+    public List<Film> getFilmList() {
+        return filmStorage.getFilmList();
+    }
+
+    public Film create(Film film) {
+        return filmStorage.create(film);
+    }
+
+    public Film update(Film film) {
+        return filmStorage.update(film);
+    }
+
+    public Film getFilmById(long filmId) {
+        return filmStorage.getFilmById(filmId);
+    }
+
+    public void addLikes(long filmId,long userId){
+        filmStorage.addLikes(filmId,userId);
+    }
+
+    public void deleteLikes(long filmId, long userId){
+        filmStorage.deleteLikes(filmId,userId);
+    }
 //    public List<Film> addLikes(long filmId, long userId) {
 //        if (getFilmById(filmId) != null && userStorage.getUserById(userId) != null) {
 //            getFilmById(filmId).getLikes().add(userId);

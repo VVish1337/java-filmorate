@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,5 +29,5 @@ public class User {
     private String name;
     @Past(message = "{Birthday can't be in future}")
     private LocalDate birthday;
-    private final Set<Long> friends = new HashSet<>();
+    //private final Set<Long> friends = new HashSet<>();
 }
