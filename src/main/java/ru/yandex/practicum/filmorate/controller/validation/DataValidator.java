@@ -26,7 +26,7 @@ public class DataValidator {
 
 
     public void validateFilm(Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().toLocalDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.error("Date release is Before than 12.28.1895");
             throw new ValidationException("Date release is Before than 12.28.1895");
         }

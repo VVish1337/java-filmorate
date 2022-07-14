@@ -28,11 +28,13 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
+        log.info("Создаю"+film);
         return filmService.create(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
+        log.info("Обноваляю"+film);
         return filmService.update(film);
     }
 
@@ -50,10 +52,10 @@ public class FilmController {
     public void deleteLikes(@PathVariable long filmId, @PathVariable long userId) {
         filmService.deleteLikes(filmId, userId);
     }
-//
-//    @GetMapping("popular")
-//    public List<Film> getPopularFilmList(
-//            @RequestParam(value = "count", defaultValue = "10", required = false) long count) {
-//        return filmService.getPopularFilmList(count);
-//    }
+
+    @GetMapping("popular")
+    public List<Film> getPopularFilmList(
+            @RequestParam(value = "count", defaultValue = "10", required = false) long count) {
+        return filmService.getPopularFilmList(count);
+    }
 }

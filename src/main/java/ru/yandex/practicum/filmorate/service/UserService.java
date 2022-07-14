@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -41,7 +42,6 @@ public class UserService {
     }
 
     public User getUserById(long userId) {
-//        checkUserExists(userId);
         return userStorage.getUserById(userId);
     }
 
@@ -63,13 +63,11 @@ public class UserService {
         return userStorage.getUserFriends(userId);
     }
 
+
     public List<User> getUserCommonFriends(long userId, long otherId) {
-        Set<User> userFriends = new HashSet<>(getUserFriends(userId));
-        Set<User> otherUserFriends = new HashSet<>(getUserFriends(otherId));
-        userFriends.retainAll(otherUserFriends);
-        log.info("sss"+userFriends);
-            return new ArrayList<>(userFriends);
-            //TODO fix common friends
+        checkUserExists(userId);
+        checkUserExists(otherId);
+        return userStorage.getUserCommonFriends(userId,otherId);
     }
 
     private void checkUserExists(Long userId) {

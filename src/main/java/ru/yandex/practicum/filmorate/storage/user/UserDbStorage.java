@@ -25,9 +25,9 @@ public class UserDbStorage implements UserStorage {
     static User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
         return new User(resultSet.getLong("USER_ID"),
                 resultSet.getString("EMAIl"),
-                resultSet.getString("LOGIN"),
                 resultSet.getString("USER_NAME"),
-                resultSet.getDate("BIRTHDAY").toLocalDate()
+                resultSet.getString("LOGIN"),
+                resultSet.getDate("BIRTHDAY")
         );
     }
 
@@ -39,19 +39,19 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        String sqlQuery = "INSERT INTO USERS(EMAIL, LOGIN, USER_NAME,BIRTHDAY) " +
+        String sqlQuery = "INSERT INTO USERS(EMAIL, USER_NAME, LOGIN,BIRTHDAY) " +
                 "values (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"USER_ID"});
             stmt.setString(1, user.getEmail());
-            stmt.setString(2, user.getLogin());
-            stmt.setString(3, user.getName());
-            final LocalDate birthday = user.getBirthday();
+            stmt.setString(2, user.getName());
+            stmt.setString(3, user.getLogin());
+            final Date birthday = user.getBirthday();
             if (birthday == null) {
                 stmt.setNull(4, Types.DATE);
             } else {
-                stmt.setDate(4, Date.valueOf(birthday));
+                stmt.setDate(4, birthday);
             }
             return stmt;
         }, keyHolder);
@@ -61,15 +61,15 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        String sqlQuery = "MERGE INTO USERS (USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?, ?)";
+        String sqlQuery = "MERGE INTO USERS (USER_ID, EMAIL, USER_NAME, LOGIN, BIRTHDAY) VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,
                 user.getId(),
                 user.getEmail(),
-                user.getLogin(),
                 user.getName(),
+                user.getLogin(),
                 user.getBirthday()
         );
-        return getUserById(user.getId());
+        return user;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sql, UserDbStorage::makeUser, userId)
                 .stream()
                 .findAny()
-                .orElseThrow(() -> new NotFoundException(""));
+                .orElseThrow(() -> new NotFoundException("User with this id:"+userId+" not found"));
     }
 
     @Override
@@ -102,5 +102,13 @@ public class UserDbStorage implements UserStorage {
                     .collect(Collectors.toList());
     }
 
-
+    @Override
+    public List<User> getUserCommonFriends(long userId, long otherId){
+        final  String sqlQuery = "SELECT FRIEND_ID FROM FRIEND_LIST WHERE USER_ID=? AND " +
+                "EXISTS (SELECT FRIEND_ID FROM FRIEND_LIST WHERE USER_ID=?)";
+        List<Long> commonFriends = jdbcTemplate.queryForList(sqlQuery,Long.class,userId,otherId);
+        return commonFriends.stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
 }
