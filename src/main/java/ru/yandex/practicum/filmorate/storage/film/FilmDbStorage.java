@@ -63,9 +63,12 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         if(film.getGenres()!=null){
-            Set<Genre> genres = new TreeSet<>(film.getGenres());
+  //          removeGenreDuplicates(film);
+            genreStorage.deleteGenreOfFilm(film.getId());
+            TreeSet<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
+            genres.addAll(film.getGenres());
             for(Genre genre : genres){
-                //genre.setName(getById(genre.getId()).getName());
+                genre.setName(genreStorage.getById((genre.getId())).getName());
                 String sql = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
                 jdbcTemplate.update(sql, film.getId(), genre.getId());
             }
@@ -85,10 +88,12 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId()
         );
         if(film.getGenres()!=null){
-            TreeSet<Genre> genres = new TreeSet<>(film.getGenres());
+ //           removeGenreDuplicates(film);
+            TreeSet<Genre> genres = new TreeSet<>(Comparator.comparing(Genre::getId));
+            genres.addAll(film.getGenres());
 //            genreStorage.deleteGenreOfFilm(film.getId());
             for(Genre genre : genres){
-                //genre.setName(getById(genre.getId()).getName());
+                genre.setName(genreStorage.getById((genre.getId())).getName());
                 String sql = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
                 jdbcTemplate.update(sql, film.getId(), genre.getId());
             }
@@ -133,11 +138,11 @@ public class FilmDbStorage implements FilmStorage {
                 .collect(Collectors.toList());
     }
 
-//    private List<Genre> removeGenreDuplicates(Film film) {
-//        film.setGenres(film.getGenres()
-//                .stream()
-//                .distinct()
-//                .collect(Collectors.toList()));
-//        return film.getGenres();
-//    }
+    private List<Genre> removeGenreDuplicates(Film film) {
+        film.setGenres(film.getGenres()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList()));
+        return film.getGenres();
+    }
 }
