@@ -26,9 +26,5 @@ public class Film{
     @Positive(message = "{Duration must be positive}")
     private int duration;
     private MPA mpa;
-    private List<Genre> genres = new ArrayList<>();
-//    @Override
-//    public int compareTo(Film o) {
-//        return -1*(likes.size() - o.likes.size());
-//    }
+    private Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
 }

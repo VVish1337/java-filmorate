@@ -16,8 +16,8 @@ VALUES (2, 'Драма');
 MERGE INTO GENRES (GENRE_ID, GENRE_NAME)
 VALUES (3, 'Мультфильм');
 MERGE INTO GENRES (GENRE_ID, GENRE_NAME)
-VALUES (4, 'Триллер');
+VALUES (4, 'Фантастика');
 MERGE INTO GENRES (GENRE_ID, GENRE_NAME)
-VALUES (5, 'Документальный');
+VALUES (5, 'Боевик');
 MERGE INTO GENRES (GENRE_ID, GENRE_NAME)
-VALUES (6, 'Боевик');
+VALUES (6, 'Детектив');

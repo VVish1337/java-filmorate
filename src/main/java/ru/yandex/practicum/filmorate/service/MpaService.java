@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
@@ -17,10 +18,18 @@ public class MpaService {
     }
 
     public MPA getById(long id){
+      validateMpaId(id);
       return mpaDbStorage.getById(id);
     }
 
     public List<MPA> getMpaList() {
+
       return mpaDbStorage.getMpaList();
     }
+
+  private void validateMpaId(Long id) {
+    if (mpaDbStorage.getById(id) == null) {
+      throw new NotFoundException(String.format("Рейтинг MPA c id %s не найден.", id));
+    }
+  }
 }

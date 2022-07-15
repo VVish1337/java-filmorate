@@ -4,13 +4,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+
 
 @Repository
 public class GenreDbStorage implements GenreStorage{
@@ -48,7 +47,7 @@ public class GenreDbStorage implements GenreStorage{
     }
 
     @Override
-    public void addGenreToFilm(Long filmId, TreeSet<Genre> genres) {
+    public void addGenreToFilm(Long filmId, Set<Genre> genres) {
         for (Genre genre : genres) {
             genre.setName(getById(genre.getId()).getName());
             String sql = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
@@ -61,4 +60,5 @@ public class GenreDbStorage implements GenreStorage{
         String sql = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, filmId);
     }
+
 }
