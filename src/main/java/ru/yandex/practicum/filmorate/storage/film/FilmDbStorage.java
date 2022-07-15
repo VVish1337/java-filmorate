@@ -43,11 +43,21 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmList() {
-        String sqlQuery = "SELECT * FROM FILMS AS F " +
+        String sql = "SELECT * FROM FILMS AS F " +
+                "LEFT JOIN MPA MR ON MR.MPA_ID = F.MPA_ID "+
                 "LEFT JOIN FILM_GENRES FG ON F.FILM_ID = FG.FILM_ID " +
-                "LEFT JOIN MPA MR ON MR.MPA_ID = F.MPA_ID " +
                 "LEFT JOIN GENRES G ON G.GENRE_ID = FG.GENRE_ID ";
-        return jdbcTemplate.query(sqlQuery, this::makeFilm);
+        return jdbcTemplate.query(sql, this::makeFilm);
+//        String sqlQuery = "SELECT*FROM FILMS AS F LEFT JOIN MPA MR ON MR.MPA_ID = F.MPA_ID ";
+//       List<Film> films = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeFilm));
+//       Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
+//       for (Film film :films){
+//           genres.addAll(genreStorage.getGenresOfFilm(film.getId()));
+//           film.setGenres(genres);
+//           genres.clear();
+//       }
+//       return films;
+
     }
 
     @Override
@@ -73,15 +83,16 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        jdbcTemplate.update("MERGE INTO FILMS (FIlM_ID,FILM_NAME, DESCRIPTION,RELEASE_DATE, DURATION,MPA_ID)" +
-                        " VALUES (?, ?, ?, ?, ?, ?)",
-                film.getId(),
+        String sqlQuery = "UPDATE FILMS SET FILM_NAME=?,DESCRIPTION=?,RELEASE_DATE=?,DURATION=?,MPA_ID=?";
+        jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getMpa().getId()
-        );
+                film.getMpa().getId());
+//        jdbcTemplate.update("UPDATE  FILMS (FIlM_ID,FILM_NAME, DESCRIPTION,RELEASE_DATE, DURATION,MPA_ID)" +
+//                        " VALUES (?, ?, ?, ?, ?, ?)",
+
         if(film.getGenres()!=null){
             genreStorage.deleteGenreOfFilm(film.getId());
             genreStorage.addGenreToFilm(film.getId(),film.getGenres());

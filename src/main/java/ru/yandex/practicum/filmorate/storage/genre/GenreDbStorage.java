@@ -49,8 +49,8 @@ public class GenreDbStorage implements GenreStorage{
     @Override
     public void addGenreToFilm(Long filmId, Set<Genre> genres) {
         for (Genre genre : genres) {
-            genre.setName(getById(genre.getId()).getName());
             String sql = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
+            genre.setName(getById(genre.getId()).getName());
             jdbcTemplate.update(sql, filmId, genre.getId());
         }
     }
