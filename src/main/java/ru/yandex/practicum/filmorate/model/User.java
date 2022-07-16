@@ -11,7 +11,6 @@ import javax.validation.constraints.Past;
 import java.sql.Date;
 import java.util.Objects;
 
-
 @Setter
 @Getter
 @AllArgsConstructor
@@ -26,7 +25,6 @@ public class User {
     private String login;
     @Past(message = "{Birthday can't be in future}")
     private Date birthday;
-    //private final Set<Long> friends = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

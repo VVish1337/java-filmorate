@@ -2,14 +2,16 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
 
-@AllArgsConstructor
 @Getter
 @Setter
-public class Genre {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Mpa {
     private long id;
     private String name;
 
@@ -17,8 +19,8 @@ public class Genre {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Genre genre = (Genre) o;
-        return id == genre.id;
+        Mpa mpa = (Mpa) o;
+        return id == mpa.id;
     }
 
     @Override

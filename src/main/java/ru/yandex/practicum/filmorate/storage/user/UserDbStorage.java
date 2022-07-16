@@ -101,14 +101,4 @@ public class UserDbStorage implements UserStorage {
                     .map(this::getUserById)
                     .collect(Collectors.toList());
     }
-
-    @Override
-    public List<User> getUserCommonFriends(long userId, long otherId){
-        final  String sqlQuery = "SELECT FRIEND_ID FROM FRIEND_LIST WHERE USER_ID=? AND " +
-                "EXISTS (SELECT FRIEND_ID FROM FRIEND_LIST WHERE USER_ID=?)";
-        List<Long> commonFriends = jdbcTemplate.queryForList(sqlQuery,Long.class,userId,otherId);
-        return commonFriends.stream()
-                .map(this::getUserById)
-                .collect(Collectors.toList());
-    }
 }

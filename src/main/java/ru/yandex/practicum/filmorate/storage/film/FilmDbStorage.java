@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -30,14 +29,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        Long id = rs.getLong("FILM_ID");
-        String name = rs.getString("FILM_NAME");
-        String description = rs.getString("DESCRIPTION");
-        Date releaseDate = rs.getDate("RELEASE_DATE");
-        int duration = rs.getInt("DURATION");
-        MPA mpa = new MPA(rs.getLong("MPA_ID"), rs.getString("MPA_NAME"));
         Set<Genre> genre = new TreeSet(Comparator.comparingLong(Genre::getId));
-        return new Film(id, name, description, releaseDate, duration, mpa, genre);
+        return new Film(rs.getLong("FILM_ID"),
+                rs.getString("FILM_NAME"),
+                rs.getString("DESCRIPTION"),
+                rs.getDate("RELEASE_DATE"),
+                rs.getInt("DURATION"),
+                new Mpa(rs.getLong("MPA_ID"), rs.getString("MPA_NAME")), genre);
     }
 
     @Override
@@ -98,9 +96,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE F.FILM_ID = ?";
         List<Film> films = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeFilm, id));
         for (Film film : films) {
-//            for (Genre genres1:genreStorage.getGenresOfFilm(film.getId())){
             film.setGenres(new LinkedHashSet<>(genreStorage.getGenresOfFilm(film.getId())));
-
         }
         System.out.println(films);
         return films
@@ -131,11 +127,8 @@ public class FilmDbStorage implements FilmStorage {
                 .collect(Collectors.toList());
     }
 
-//    private Film removeGenreDuplicates(Film film) {
-//        film.setGenres(film.getGenres()
-//                .stream()
-//                .distinct()
-//                .collect(Collectors.toList()));
-//        return film;
-//    }
+    public List<Long> getFilmLikes(Long filmId) {
+        String sql = "SELECT USER_ID FROM LIKES WHERE FILM_ID = ?";
+        return jdbcTemplate.queryForList(sql, Long.class, filmId);
+    }
 }

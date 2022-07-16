@@ -25,7 +25,7 @@ public class Film{
     private Date releaseDate;
     @Positive(message = "{Duration must be positive}")
     private int duration;
-    private MPA mpa;
+    private Mpa mpa;
     private Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
 
     @Override

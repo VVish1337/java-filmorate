@@ -12,7 +12,7 @@ import java.util.Set;
 
 
 @Repository
-public class GenreDbStorage implements GenreStorage{
+public class GenreDbStorage implements GenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -31,7 +31,7 @@ public class GenreDbStorage implements GenreStorage{
         return jdbcTemplate.query(sql, GenreDbStorage::makeGenre, id)
                 .stream()
                 .findAny()
-                .orElseThrow(() -> new NotFoundException("Genre with "+id+" not found"));
+                .orElseThrow(() -> new NotFoundException("Genre with " + id + " not found"));
     }
 
     @Override
@@ -60,5 +60,4 @@ public class GenreDbStorage implements GenreStorage{
         String sql = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, filmId);
     }
-
 }

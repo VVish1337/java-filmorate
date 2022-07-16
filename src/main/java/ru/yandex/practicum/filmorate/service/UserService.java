@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.controller.validation.DataValidator;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -45,17 +43,16 @@ public class UserService {
         return userStorage.getUserById(userId);
     }
 
-    public void addFriend(long userId,long friendId){
+    public void addFriend(long userId, long friendId) {
         checkUserExists(userId);
         checkUserExists(friendId);
-        userStorage.addFriend(userId,friendId);
+        userStorage.addFriend(userId, friendId);
     }
 
-    public void deleteFriend(long userId,long friendId)
-    {
+    public void deleteFriend(long userId, long friendId) {
         checkUserExists(userId);
         checkUserExists(friendId);
-        userStorage.deleteFriend(userId,friendId);
+        userStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getUserFriends(long userId) {

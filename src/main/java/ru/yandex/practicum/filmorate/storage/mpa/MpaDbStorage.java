@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.mpa;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.controller.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,7 +19,7 @@ public class MpaDbStorage implements MpaStorage{
     }
 
     @Override
-    public MPA getById(long id) {
+    public Mpa getById(long id) {
         String sql = "SELECT * FROM MPA WHERE MPA_ID = ?";
         return jdbcTemplate.query(sql, MpaDbStorage::makeMpa, id)
                 .stream()
@@ -27,12 +27,12 @@ public class MpaDbStorage implements MpaStorage{
                 .orElseThrow(() -> new NotFoundException("MPA with "+id+" not found"));
     }
 
-    static MPA makeMpa(ResultSet resultSet, int rowNum) throws SQLException {
-        return new MPA(resultSet.getLong("MPA_ID"),resultSet.getString("MPA_NAME"));
+    static Mpa makeMpa(ResultSet resultSet, int rowNum) throws SQLException {
+        return new Mpa(resultSet.getLong("MPA_ID"),resultSet.getString("MPA_NAME"));
     }
 
     @Override
-    public List<MPA> getMpaList() {
+    public List<Mpa> getMpaList() {
         String sql = "SELECT * FROM MPA";
         return jdbcTemplate.query(sql, MpaDbStorage::makeMpa);
     }

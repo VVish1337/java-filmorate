@@ -4,26 +4,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.controller.validation.DataValidator;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
     private final DataValidator dataValidator;
-    private final GenreDbStorage genreDbStorage;
+
     @Autowired
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, DataValidator dataValidator, GenreDbStorage genreDbStorage) {
+    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, DataValidator dataValidator) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.dataValidator = dataValidator;
-        this.genreDbStorage = genreDbStorage;
     }
 
     public Collection<Film> getFilmList() {
@@ -45,30 +42,22 @@ public class FilmService {
         return filmStorage.getFilmById(filmId);
     }
 
-    public void addLikes(long filmId,long userId){
-        checkUserAndFilmExists(filmId,userId);
-        filmStorage.addLikes(filmId,userId);
+    public void addLikes(long filmId, long userId) {
+        checkUserAndFilmExists(filmId, userId);
+        filmStorage.addLikes(filmId, userId);
     }
 
-    public void deleteLikes(long filmId, long userId){
-        checkUserAndFilmExists(filmId,userId);
-        filmStorage.deleteLikes(filmId,userId);
+    public void deleteLikes(long filmId, long userId) {
+        checkUserAndFilmExists(filmId, userId);
+        filmStorage.deleteLikes(filmId, userId);
     }
 
-    private void checkUserAndFilmExists(long filmId, long userId){
+    private void checkUserAndFilmExists(long filmId, long userId) {
         getFilmById(filmId);
         userStorage.getUserById(userId);
     }
 
-    public List<Film> getPopularFilmList(Long count){
+    public List<Film> getPopularFilmList(Long count) {
         return filmStorage.getPopularFilmList(count);
     }
-
-//    private List<Genre> removeGenreDuplicates(Film film) {
-//        film.setGenres(film.getGenres()
-//                .stream()
-//                .distinct()
-//                .collect(Collectors.toList()));
-//        return film.getGenres();
-//    }
 }
