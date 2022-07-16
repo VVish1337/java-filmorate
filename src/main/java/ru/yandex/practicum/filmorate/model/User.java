@@ -9,8 +9,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
 import java.sql.Date;
-
-
+import java.util.Objects;
 
 
 @Setter
@@ -28,4 +27,17 @@ public class User {
     @Past(message = "{Birthday can't be in future}")
     private Date birthday;
     //private final Set<Long> friends = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

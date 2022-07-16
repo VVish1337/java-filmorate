@@ -37,27 +37,19 @@ public class FilmDbStorage implements FilmStorage {
         int duration = rs.getInt("DURATION");
         MPA mpa = new MPA(rs.getLong("MPA_ID"), rs.getString("MPA_NAME"));
         Set<Genre> genre = new TreeSet(Comparator.comparingLong(Genre::getId));
-        genre.addAll(genreStorage.getGenresOfFilm(id));
         return new Film(id, name, description, releaseDate, duration, mpa, genre);
     }
 
     @Override
     public List<Film> getFilmList() {
-        String sql = "SELECT * FROM FILMS AS F " +
-                "LEFT JOIN MPA MR ON MR.MPA_ID = F.MPA_ID "+
-                "LEFT JOIN FILM_GENRES FG ON F.FILM_ID = FG.FILM_ID " +
-                "LEFT JOIN GENRES G ON G.GENRE_ID = FG.GENRE_ID ";
-        return jdbcTemplate.query(sql, this::makeFilm);
-//        String sqlQuery = "SELECT*FROM FILMS AS F LEFT JOIN MPA MR ON MR.MPA_ID = F.MPA_ID ";
-//       List<Film> films = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeFilm));
-//       Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
-//       for (Film film :films){
-//           genres.addAll(genreStorage.getGenresOfFilm(film.getId()));
-//           film.setGenres(genres);
-//           genres.clear();
-//       }
-//       return films;
-
+        String sqlQuery = "SELECT*FROM FILMS AS F LEFT JOIN MPA MR ON MR.MPA_ID = F.MPA_ID ";
+        List<Film> films = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeFilm));
+        Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
+        for (Film film : films) {
+            genres.addAll(genreStorage.getGenresOfFilm(film.getId()));
+                film.setGenres(new LinkedHashSet<>(genreStorage.getGenresOfFilm(film.getId())));
+        }
+        return films;
     }
 
     @Override
@@ -83,16 +75,15 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        String sqlQuery = "UPDATE FILMS SET FILM_NAME=?,DESCRIPTION=?,RELEASE_DATE=?,DURATION=?,MPA_ID=?";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update("MERGE INTO FILMS (FIlM_ID,FILM_NAME, DESCRIPTION,RELEASE_DATE, DURATION,MPA_ID)" +
+                        " VALUES (?, ?, ?, ?, ?, ?)",
+                film.getId(),
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getMpa().getId());
-//        jdbcTemplate.update("UPDATE  FILMS (FIlM_ID,FILM_NAME, DESCRIPTION,RELEASE_DATE, DURATION,MPA_ID)" +
-//                        " VALUES (?, ?, ?, ?, ?, ?)",
-
+                film.getMpa().getId()
+        );
         if(film.getGenres()!=null){
             genreStorage.deleteGenreOfFilm(film.getId());
             genreStorage.addGenreToFilm(film.getId(),film.getGenres());
@@ -103,11 +94,16 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getFilmById(long id) {
         String sqlQuery = "SELECT * FROM FILMS F " +
-                "LEFT JOIN FILM_GENRES FG ON F.FILM_ID = FG.FILM_ID " +
                 "LEFT JOIN MPA MP ON MP.MPA_ID = F.MPA_ID " +
-                "LEFT JOIN GENRES G ON G.GENRE_ID = FG.GENRE_ID " +
                 "WHERE F.FILM_ID = ?";
-        return jdbcTemplate.query(sqlQuery, this::makeFilm, id)
+        List<Film> films = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeFilm, id));
+        for (Film film : films) {
+//            for (Genre genres1:genreStorage.getGenresOfFilm(film.getId())){
+            film.setGenres(new LinkedHashSet<>(genreStorage.getGenresOfFilm(film.getId())));
+
+        }
+        System.out.println(films);
+        return films
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Film with this id:"+id+" not found"));

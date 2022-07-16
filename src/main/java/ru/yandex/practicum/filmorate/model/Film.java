@@ -12,11 +12,10 @@ import javax.validation.constraints.Size;
 import java.sql.Date;
 import java.util.*;
 
-
-@Setter
-@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
+@Getter
 public class Film{
     private long id;
     @NotEmpty(message = "{Name is empty}")
@@ -27,5 +26,18 @@ public class Film{
     @Positive(message = "{Duration must be positive}")
     private int duration;
     private MPA mpa;
-    private Set<Genre> genres;
+    private Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return id == film.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

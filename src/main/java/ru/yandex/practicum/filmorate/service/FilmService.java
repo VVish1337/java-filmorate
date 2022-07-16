@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +26,7 @@ public class FilmService {
         this.genreDbStorage = genreDbStorage;
     }
 
-    public List<Film> getFilmList() {
+    public Collection<Film> getFilmList() {
         return filmStorage.getFilmList();
     }
 

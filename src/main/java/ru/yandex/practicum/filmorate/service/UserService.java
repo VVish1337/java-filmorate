@@ -65,9 +65,10 @@ public class UserService {
 
 
     public List<User> getUserCommonFriends(long userId, long otherId) {
-        checkUserExists(userId);
-        checkUserExists(otherId);
-        return userStorage.getUserCommonFriends(userId,otherId);
+        Set<User> userFriends = new HashSet<>(getUserFriends(userId));
+        Set<User> otherUserFriends = new HashSet<>(getUserFriends(otherId));
+        userFriends.retainAll(otherUserFriends);
+        return new ArrayList<>(userFriends);
     }
 
     private void checkUserExists(Long userId) {
