@@ -27,7 +27,7 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre getById(long id) {
-        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
+        String sql = "SELECT * FROM genres WHERE genre_id = ?";
         return jdbcTemplate.query(sql, GenreDbStorage::makeGenre, id)
                 .stream()
                 .findAny()
@@ -36,20 +36,20 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getGenreList() {
-        String sql = "SELECT * FROM GENRES";
+        String sql = "SELECT * FROM genres";
         return jdbcTemplate.query(sql, GenreDbStorage::makeGenre);
     }
 
     @Override
     public List<Genre> getGenresOfFilm(long filmId) {
-        String sql = "SELECT * FROM GENRES LEFT JOIN FILM_GENRES FG ON GENRES.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
+        String sql = "SELECT * FROM genres LEFT JOIN film_genres fg ON genres.genre_id = fg.genre_id WHERE film_id = ?";
         return jdbcTemplate.query(sql, GenreDbStorage::makeGenre, filmId);
     }
 
     @Override
     public void addGenreToFilm(Long filmId, Set<Genre> genres) {
         for (Genre genre : genres) {
-            String sql = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
+            String sql = "MERGE INTO film_genres (film_id, genre_id) VALUES (?, ?)";
             genre.setName(getById(genre.getId()).getName());
             jdbcTemplate.update(sql, filmId, genre.getId());
         }
@@ -57,7 +57,7 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public void deleteGenreOfFilm(Long filmId) {
-        String sql = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+        String sql = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(sql, filmId);
     }
 }

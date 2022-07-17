@@ -52,12 +52,12 @@ public class FilmService {
         filmStorage.deleteLikes(filmId, userId);
     }
 
+    public List<Film> getPopularFilmList(Long count) {
+        return filmStorage.getPopularFilmList(count);
+    }
+
     private void checkUserAndFilmExists(long filmId, long userId) {
         getFilmById(filmId);
         userStorage.getUserById(userId);
-    }
-
-    public List<Film> getPopularFilmList(Long count) {
-        return filmStorage.getPopularFilmList(count);
     }
 }

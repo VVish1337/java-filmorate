@@ -20,7 +20,7 @@ public class MpaDbStorage implements MpaStorage{
 
     @Override
     public Mpa getById(long id) {
-        String sql = "SELECT * FROM MPA WHERE MPA_ID = ?";
+        String sql = "SELECT * FROM mpa WHERE mpa_id = ?";
         return jdbcTemplate.query(sql, MpaDbStorage::makeMpa, id)
                 .stream()
                 .findAny()
@@ -33,7 +33,7 @@ public class MpaDbStorage implements MpaStorage{
 
     @Override
     public List<Mpa> getMpaList() {
-        String sql = "SELECT * FROM MPA";
+        String sql = "SELECT * FROM mpa";
         return jdbcTemplate.query(sql, MpaDbStorage::makeMpa);
     }
 }

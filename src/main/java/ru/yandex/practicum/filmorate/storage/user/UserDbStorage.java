@@ -33,13 +33,13 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getUserList() {
-        String sqlQuery = ("SELECT * FROM USERS");
+        String sqlQuery = ("SELECT * FROM users");
         return jdbcTemplate.query(sqlQuery,UserDbStorage::makeUser);
     }
 
     @Override
     public User create(User user) {
-        String sqlQuery = "INSERT INTO USERS(EMAIL, USER_NAME, LOGIN,BIRTHDAY) " +
+        String sqlQuery = "INSERT INTO USERS(email, user_name, login,birthday) " +
                 "values (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -61,7 +61,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        String sqlQuery = "MERGE INTO USERS (USER_ID, EMAIL, USER_NAME, LOGIN, BIRTHDAY) VALUES (?, ?, ?, ?, ?)";
+        String sqlQuery = "MERGE INTO users (user_id, email, user_name, login, birthday) VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,
                 user.getId(),
                 user.getEmail(),
@@ -74,7 +74,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(long userId) {
-        String sql = "SELECT * FROM USERS WHERE USER_ID = ?";
+        String sql = "SELECT * FROM users WHERE user_id = ?";
         return jdbcTemplate.query(sql, UserDbStorage::makeUser, userId)
                 .stream()
                 .findAny()
@@ -83,19 +83,19 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(long userId, long friendId) {
-        final String sqlQuery = "INSERT INTO FRIEND_LIST (USER_ID,FRIEND_ID) VALUES(?,?)";
+        final String sqlQuery = "INSERT INTO friend_list (user_id,friend_id) VALUES(?,?)";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
     @Override
     public void deleteFriend(long userId, long friendId) {
-        final String sqlQuery = "DELETE FROM FRIEND_LIST WHERE USER_ID = ? AND FRIEND_ID =?";
+        final String sqlQuery = "DELETE FROM friend_list WHERE user_id = ? AND friend_id =?";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
     @Override
     public List<User> getUserFriends(long userId){
-        final String sqlQuery = "SELECT FRIEND_ID FROM FRIEND_LIST WHERE USER_ID = ?";
+        final String sqlQuery = "SELECT friend_id FROM friend_list WHERE user_id = ?";
         List<Long> friends = jdbcTemplate.queryForList(sqlQuery,Long.class,userId);
         return friends.stream()
                     .map(this::getUserById)

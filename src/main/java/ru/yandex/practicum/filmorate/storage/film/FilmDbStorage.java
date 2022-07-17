@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
-import java.sql.Date;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,19 +28,9 @@ public class FilmDbStorage implements FilmStorage {
         this.genreStorage = genreStorage;
     }
 
-    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        Set<Genre> genre = new TreeSet(Comparator.comparingLong(Genre::getId));
-        return new Film(rs.getLong("FILM_ID"),
-                rs.getString("FILM_NAME"),
-                rs.getString("DESCRIPTION"),
-                rs.getDate("RELEASE_DATE"),
-                rs.getInt("DURATION"),
-                new Mpa(rs.getLong("MPA_ID"), rs.getString("MPA_NAME")), genre);
-    }
-
     @Override
     public List<Film> getFilmList() {
-        String sqlQuery = "SELECT*FROM FILMS AS F LEFT JOIN MPA MR ON MR.MPA_ID = F.MPA_ID ";
+        String sqlQuery = "SELECT*FROM films AS f LEFT JOIN mpa mr ON mr.mpa_id = f.mpa_id ";
         List<Film> films = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeFilm));
         Set<Genre> genres = new TreeSet<>(Comparator.comparingLong(Genre::getId));
         for (Film film : films) {
@@ -52,7 +42,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        String sqlQuery = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID) " +
+        String sqlQuery = "INSERT INTO films (film_name, description, release_date, duration, mpa_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -73,7 +63,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        jdbcTemplate.update("MERGE INTO FILMS (FIlM_ID,FILM_NAME, DESCRIPTION,RELEASE_DATE, DURATION,MPA_ID)" +
+        jdbcTemplate.update("MERGE INTO films (fiLm_id,film_name, description,release_date, duration,mpa_id)" +
                         " VALUES (?, ?, ?, ?, ?, ?)",
                 film.getId(),
                 film.getName(),
@@ -91,9 +81,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(long id) {
-        String sqlQuery = "SELECT * FROM FILMS F " +
-                "LEFT JOIN MPA MP ON MP.MPA_ID = F.MPA_ID " +
-                "WHERE F.FILM_ID = ?";
+        String sqlQuery = "SELECT * FROM films f " +
+                "LEFT JOIN mpa mp ON mp.mpa_id = f.mpa_id " +
+                "WHERE f.film_id = ?";
         List<Film> films = new ArrayList<>(jdbcTemplate.query(sqlQuery, this::makeFilm, id));
         for (Film film : films) {
             film.setGenres(new LinkedHashSet<>(genreStorage.getGenresOfFilm(film.getId())));
@@ -106,20 +96,20 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void addLikes(long filmId, long userId) {
-        String sqlQuery = "INSERT INTO LIKES(FILM_ID, USER_ID) VALUES ( ?,? )";
+        String sqlQuery = "INSERT INTO likes(film_id, user_id) VALUES ( ?,? )";
         jdbcTemplate.update(sqlQuery,filmId,userId);
     }
 
     public void deleteLikes(long filmId, long userId){
-        String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
+        String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sqlQuery,filmId,userId);
     }
 
     @Override
     public List<Film> getPopularFilmList(Long count) {
-        String sql = "SELECT F.FILM_ID FROM LIKES L " +
-                "RIGHT JOIN FILMS F ON F.FILM_ID = L.FILM_ID " +
-                "GROUP BY F.FILM_ID ORDER BY COUNT(L.FILM_ID) DESC LIMIT ?";
+        String sql = "SELECT f.film_id FROM likes l " +
+                "RIGHT JOIN films f ON f.film_id = l.film_id " +
+                "GROUP BY f.film_id ORDER BY COUNT(l.film_id) DESC LIMIT ?";
         List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, count);
         return filmIds
                 .stream()
@@ -128,7 +118,17 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public List<Long> getFilmLikes(Long filmId) {
-        String sql = "SELECT USER_ID FROM LIKES WHERE FILM_ID = ?";
+        String sql = "SELECT user_id FROM likes WHERE film_id = ?";
         return jdbcTemplate.queryForList(sql, Long.class, filmId);
+    }
+
+    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
+        Set<Genre> genre = new TreeSet(Comparator.comparingLong(Genre::getId));
+        return new Film(rs.getLong("FILM_ID"),
+                rs.getString("FILM_NAME"),
+                rs.getString("DESCRIPTION"),
+                rs.getDate("RELEASE_DATE"),
+                rs.getInt("DURATION"),
+                new Mpa(rs.getLong("MPA_ID"), rs.getString("MPA_NAME")), genre);
     }
 }
