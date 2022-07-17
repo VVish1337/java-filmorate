@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -37,6 +38,11 @@ public class FilmDbStorageTest {
         return film;
     }
 
+    @BeforeEach
+    public void createFilmBefore(){
+        filmDbStorage.create(getTestFilm());
+    }
+
     private User getTestUser() {
         return new User(1L, "test@mail.ru",
                 "testUser",
@@ -45,7 +51,7 @@ public class FilmDbStorageTest {
 
     @Test
     void createFilm() {
-        Film film = filmDbStorage.create(getTestFilm());
+        Film film = getTestFilm();
         assertThat(filmDbStorage.getFilmList())
                 .contains(film)
                 .hasSize(1);
@@ -53,14 +59,14 @@ public class FilmDbStorageTest {
 
     @Test
     void getFilmById() {
-        Film film = filmDbStorage.create(getTestFilm());
+        Film film = getTestFilm();
         long filmId = film.getId();
         assertThat(filmDbStorage.getFilmById(filmId)).isEqualTo(film);
     }
 
     @Test
     void getFilms() {
-        Film film = filmDbStorage.create(getTestFilm());
+        Film film = getTestFilm();
         Film film2 = filmDbStorage.create(getTestFilm());
         List<Film> filmList = filmDbStorage.getFilmList();
         assertThat(filmList)
@@ -70,7 +76,7 @@ public class FilmDbStorageTest {
 
     @Test
     void updateFilm() {
-        Film film = filmDbStorage.create(getTestFilm());
+        Film film = getTestFilm();
         film.setName("(upd)FilmName");
         film.setDescription("(upd)FilmDescription");
         film.setReleaseDate(new Date(1970, 1, 1));
@@ -87,7 +93,7 @@ public class FilmDbStorageTest {
 
     @Test
     void addAndGetLikes() {
-        Film film = filmDbStorage.create(getTestFilm());
+        Film film = getTestFilm();
         User user = userDbStorage.create(getTestUser());
         filmDbStorage.addLikes(film.getId(), user.getId());
         assertThat(filmDbStorage.getFilmLikes(film.getId())).contains(user.getId());
@@ -96,7 +102,7 @@ public class FilmDbStorageTest {
 
     @Test
     void removeLikes() {
-        Film film = filmDbStorage.create(getTestFilm());
+        Film film = getTestFilm();
         User user = userDbStorage.create(getTestUser());
         filmDbStorage.addLikes(film.getId(), user.getId());
         filmDbStorage.deleteLikes(film.getId(), user.getId());
@@ -106,7 +112,7 @@ public class FilmDbStorageTest {
 
     @Test
     void getPopularFilm() {
-        Film film = filmDbStorage.create(getTestFilm());
+        Film film = getTestFilm();
         Film film2 = filmDbStorage.create(getTestFilm());
         User user = userDbStorage.create(getTestUser());
         filmDbStorage.addLikes(film2.getId(), user.getId());
