@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -22,7 +23,7 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getFilmList() {
+    public Collection<Film> getFilmList() {
         return filmService.getFilmList();
     }
 
@@ -42,13 +43,13 @@ public class FilmController {
     }
 
     @PutMapping("{filmId}/like/{userId}")
-    public List<Film> addLikes(@PathVariable long filmId, @PathVariable long userId) {
-        return filmService.addLikes(filmId, userId);
+    public void addLikes(@PathVariable long filmId, @PathVariable long userId) {
+        filmService.addLikes(filmId, userId);
     }
 
     @DeleteMapping("{filmId}/like/{userId}")
-    public List<Film> deleteLikes(@PathVariable long filmId, @PathVariable long userId) {
-        return filmService.deleteLikes(filmId, userId);
+    public void deleteLikes(@PathVariable long filmId, @PathVariable long userId) {
+        filmService.deleteLikes(filmId, userId);
     }
 
     @GetMapping("popular")
